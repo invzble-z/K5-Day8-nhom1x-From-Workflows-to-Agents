@@ -20,3 +20,7 @@ src/reports/bonus_hidden.json
 
 # Instructor-only hidden pack. Never push it to this repo.
 src/eval/instructor/
+
+# Working Plan (Local persistence)
+PLAN.md
+
