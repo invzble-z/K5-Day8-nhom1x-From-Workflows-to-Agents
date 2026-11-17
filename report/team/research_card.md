@@ -17,19 +17,17 @@ Phần này nối tiếp phần mini research ở buổi lý thuyết (slide 62�
 
 | Field | Hướng dẫn | Nhóm điền |
 | --- | --- | --- |
-| CÂU | R1 / R2 / R3 / R4 | |
-| SOURCE | Paper/blog, năm, URL, loại bằng chứng (benchmark, production report, blog kinh nghiệm) | |
-| CLAIM | Một kết luận gốc của nguồn. Không viết rộng hơn phạm vi paper | |
-| BOUNDARY | Model / dataset / setup giới hạn kết luận đó | |
-| HYPOTHESIS | Nếu đổi shape A→B (hoặc bật/tắt một thành phần), metric X sẽ đổi theo hướng nào, khoảng bao nhiêu | |
-| METHOD | Biến giữ cố định: model, tools, seed, corpus, giá, evaluator. Biến duy nhất được thay đổi: … | |
-| FAILURE / METRIC | Một lỗi dự kiến và cách đo nó: pass rate, pass^5, variance, cost/success, leak, bypass | |
+| CÂU | R1 / R2 / R3 / R4 | R1 |
+| SOURCE | Paper/blog, năm, URL, loại bằng chứng (benchmark, production report, blog kinh nghiệm) | Google Research 2026, Towards a Science of Scaling Agent Systems, Empirical Scaling Benchmark |
+| CLAIM | Một kết luận gốc của nguồn. Không viết rộng hơn phạm vi paper | Phân rã thêm agent chỉ cải thiện hiệu năng khi subtask có tính độc lập cao; trên task phụ thuộc tuần tự, tăng số tác tử làm tăng chi phí và bề mặt lỗi |
+| BOUNDARY | Model / dataset / setup giới hạn kết luận đó | Môi trường hệ thống xử lý claims LogiX-VN với MockLLM, bộ 14 claims có ràng buộc trạng thái SQLite |
+| HYPOTHESIS | Nếu đổi shape A→B (hoặc bật/tắt một thành phần), metric X sẽ đổi theo hướng nào, khoảng bao nhiêu | Chuyển từ Workflow sang Orchestrator/Swarm không tăng pass rate (1.0 vs 0.986) nhưng làm tăng cost/success ít nhất 70% |
+| METHOD | Biến giữ cố định: model, tools, seed, corpus, giá, evaluator. Biến duy nhất được thay đổi: … | Cố định MockLLM, bộ 14 claims, 5 seeds (11,22,33,44,55), DB state và pricing. Biến thay đổi duy nhất: Topology (Workflow vs Orchestrator vs Swarm) |
+| FAILURE / METRIC | Một lỗi dự kiến và cách đo nó: pass rate, pass^5, variance, cost/success, leak, bypass | Swarm trượt claim C-002 ở seed 55 (pass rate giảm còn 0.986, pass^5 = 0.929, variance = 0.000816); cost tăng từ 27.86 lên 47.36 và 49.57 VND |
 
 ## Kết quả ablation
 
-- Lệnh đã chạy (copy nguyên văn):
-- Run id / file report:
-- Kết quả so với hypothesis (đúng / sai / không kết luận được), kèm số liệu:
+- Lệnh đã chạy (copy nguyên văn): python -m lab8.benchmark --shapes workflow,single,orchestrator,swarm --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/benchmark.json
+- Run id / file report: reports/benchmark.json
+- Kết quả so với hypothesis (đúng / sai / không kết luận được), kèm số liệu: Đúng. Workflow đạt pass rate 1.0, pass^5 1.0, cost/success 27.86 VND. Khi chuyển sang Orchestrator, cost/success tăng 70% lên 47.36 VND mà pass rate không đổi (1.0). Khi chuyển sang Swarm, pass rate giảm xuống 0.986 (fail C-002 seed 55), variance tăng lên 0.000816 và cost/success tăng lên 49.57 VND (+77.9%).
 - Giới hạn: MockLLM không phải model sản xuất, latency là `unavailable`.
-
-Muốn đi xa hơn một ablation để lấy điểm cộng thì xem [docs/bonus_topics.md](../../docs/bonus_topics.md).
